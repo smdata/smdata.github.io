@@ -142,7 +142,7 @@ trace <code>n</code>, column <code>d</code>, at index <code>t</code>.<br>
 <p>Save data to disk</p>
 
 <div class="highlight highlight-matlab"><pre><span class="c">% save as Matlab data</span>
-<span class="n">save</span><span class="p">(</span><span class="s">'example.mat'</span><span class="p">,</span> <span class="s">'dataset'</span><span class="p">,</span> <span class="s">'-struct'</span><span class="p">);</span>
+<span class="n">save</span><span class="p">(</span><span class="s">'example.mat'</span><span class="p">,</span> <span class="s">'-struct'</span><span class="p">,</span> <span class="s">'dataset'</span><span class="p">);</span>
 <span class="c">% save as plain text JSON (uncompressed)</span>
 <span class="n">smd</span><span class="p">.</span><span class="n">write_json</span><span class="p">(</span><span class="s">'example.json'</span><span class="p">,</span> <span class="n">dataset</span><span class="p">);</span>
 <span class="c">% save as plain text JSON (with gzip compression)</span>
