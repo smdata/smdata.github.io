@@ -24,44 +24,51 @@
       </header>
       <section>
         <h1>
-<a name="single-molecule-dataset-smd-format" class="anchor" href="#single-molecule-dataset-smd-format"><span class="octicon octicon-link"></span></a>Single-molecule Dataset (SMD) Format</h1>
+<a id="single-molecule-dataset-smd-format" class="anchor" href="#single-molecule-dataset-smd-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Single-molecule Dataset (SMD) Format</h1>
 
-<p>The single-molecule dataset (SMD) format has been jointly developed in the groups of Dan Herschlag (<a href="http://cmgm.stanford.edu/herschlag/">Stanford</a>) and Ruben Gonzalez (<a href="http://www.columbia.edu/cu/chemistry/groups/gonzalez/index.html">Columbia</a>) to facilitate publication and exchange of data and analysis results obtained in single-molecule studies.</p>
-
-<p>The <a href="https://github.com/smdata/smd-matlab">smd-matlab</a> repository contains Matlab utility functions for creating, validating, saving and loading SMD structures in <a href="http://www.mathworks.com/products/matlab/">Matlab</a>. </p>
-
-<p>The <a href="https://github.com/smdata/smd-python">smd-python</a> repository mirrors the functionality of the Matlab package using standard Python utility functions</a>. </p>
-
+<p>The single-molecule dataset (SMD) format has been jointly developed in the groups of Dan Herschlag (<a href="http://cmgm.stanford.edu/herschlag/">Stanford</a>) and Ruben Gonzalez (<a href="http://www.columbia.edu/cu/chemistry/groups/gonzalez/index.html">Columbia</a>) to facilitate publication and exchange of data and analysis results obtained in single-molecule studies.
+This repository contains Matlab utility functions for creating, validating, saving and loading SMD structures in <a href="http://www.mathworks.com/products/matlab/">Matlab</a>. </p>
 
 <h2>
-<a name="format-description" class="anchor" href="#format-description"><span class="octicon octicon-link"></span></a>Format Description</h2>
+<a id="format-description" class="anchor" href="#format-description" aria-hidden="true"><span class="octicon octicon-link"></span></a>Format Description</h2>
 
 <p>The representation of a SMD structure in Matlab is as follows</p>
 
 <blockquote>
 <ul>
-<li>  <strong>dataset</strong> : <code>struct</code><br><ul>
+<li>  <strong>dataset</strong> : <code>struct</code><br>
+
+<ul>
 <li>  <strong>.id</strong> : <code>string</code><br>
 Unique identifier for collection of traces (e.g. a hash)</li>
-<li>  <strong>.type</strong> : <code>string</code><br>
-Decriptor for datatype</li>
-<li>  <strong>.columns</strong> : <code>1 x D cell</code><br>
-column labels, e.g. <code>{'donor', 'acceptor'}</code>, <code>{'fret'}</code>, 
-<code>{'viterbi_state_mean', 'viterbi_state_index'}</code>
+<li>  <strong>.desc</strong> : <code>string</code><br>
+Human-readable decriptor for dataset</li>
+<li>  <strong>.types</strong> : <code>struct</code><br>
+
+<ul>
+<li>
+<strong>.index</strong> : <code>"bool" | "float" | "double" | "int" | "long" | "string"</code>
+Data type for index</li>
+<li>
+<strong>.values</strong> : <code>struct</code>
+Data types for column values. Each field <strong>.column_name</strong> contains a format string as in <strong>.index</strong>
+</li>
+</ul>
 </li>
 <li>  <strong>.attr</strong> : <code>struct</code><br>
 Dataset level features (e.g. descriptors of experimental 
 conditions)</li>
-<li>  <strong>.data</strong> : <code>1 x N struct</code><br><ul>
+<li>  <strong>.data</strong> : <code>1 x N struct</code><br>
+
+<ul>
 <li>  <strong>.id</strong> : <code>string</code><br>
 Unique identifier for trace (e.g. a hash)</li>
 <li>  <strong>.attr</strong> : <code>struct</code><br>
 Any trace-specific features that are not series</li>
-<li>  <strong>.index</strong> : <code>T x 1 matrix</code><br>
+<li>  <strong>.index</strong> : <code>1 x T vector</code><br>
 Row index for trace data (e.g. acquisition times)</li>
-<li>  <strong>.values</strong> : <code>T x D matrix</code><br>
-Trace data. <code>dataset.data(n).values(t, d)</code> contains the value of
-trace <code>n</code>, column <code>d</code>, at index <code>t</code>.<br>
+<li>  <strong>.values</strong> : <code>struct</code><br>
+Column values. Each field <strong>.column_name</strong> holds a <code>1 x T vector</code>
 </li>
 </ul>
 </li>
@@ -70,26 +77,28 @@ trace <code>n</code>, column <code>d</code>, at index <code>t</code>.<br>
 </ul>
 </blockquote>
 
-<p>The top-level structure of the SMD format contains four fields </p>
+<ul>
+<li> <strong>desc</strong>. This field serves to provide a simple descriptor of the data set contained herein. </li>
+<li>  <strong>id</strong>. This field serves as a unique identifier for the particular set of traces that are grouped in this data structure. By default, a MD5 algorithm is used to generate a 32 digit hexadecimal number that is practically unique. This helps to ensure that when datasets generated at different times are combined, it remains easy to track the source of each dataset.</li>
+<li>  <strong>attr</strong>. The attributes field stores information related to a particular group of traces. This could be information such as the day the experiment was completed, the exact experimental conditions, or any other information that relates to the data set as a whole.</li>
+<li>  <strong>types</strong>. Holds type identifiers for the index and values fields.  Each field of data being stored in the values field should be specified here.  These identifiers are ‘bool’, ‘float’, ‘double’, ‘int’, ‘long’ and ‘string’.</li>
+<li>  <strong>data</strong>. Holds a list of entries for each trace, which themselves contain a set of fields:
 
 <ul>
-<li>  <strong>id</strong>: This field serves as a unique identifier for the particular set of traces that are grouped in this data structure. While there are no specific requirements enforced by SMD, it is recommended that a hash function be used to generate a identifier for each data set.  This will help insure that when data sets generated at different times are combined it will be easy to track the source of each data set.</li>
-<li>  <strong>attr</strong>: This attributes field is provided to store information related to that particular group of traces. This could be information such as the day the experiment was completed, the exact experimental conditions, or any other information that relates to the data set as a whole.</li>
-<li>  <strong>columns</strong>: This holds a set of labels that describe the columns in each values entry for individual time series, which are assumed to be identical across the data set (e.g. donor, acceptor, Viterbi algorithm-inferred state). </li>
-<li>  <strong>data</strong>: This holds a list of entries for each trace, which themselves contain a set of fields:
-
-<ul>
-<li>  <strong>id</strong>: This field holds a trace-specific identifier, which may be generated by running a hash function on the values matrix.</li>
-<li>  <strong>index</strong>: This field contains a list of row labels for the values matrix, which typically hold the measurement times. This field should have the same length as the values field. </li>
-<li>  <strong>values</strong>: This field contains the actual trace data, where each column represents a different channel. Most simply, a channel can contain raw single molecule data, but depending on the user, it could equally well be used to store window-averaged data, thresholded data, fits of the data or an arbitrary number of other series data.</li>
-<li>  <strong>attr</strong>: This attributes field has much the same role as the top-level attribute field, but is specific to this particular trace. Within this data field a user can store any additional information they are interested in storing. This could be anything from a kinetic or thermodynamic parameter algorithmically determined for a particular trace to an observation of that particular trace that an experimentalist wants to note for future reference.</li>
+<li>  <strong>id</strong>. Holds a trace-specific identifier. By default a MD5 hash is of the values structure is used. </li>
+<li>  <strong>index</strong>. This field contains a list of row labels for the values matrix, which typically hold the measurement times. This field should have the same length as the data in the values field. </li>
+<li>  <strong>values</strong>. This field contains the actual single-molecule data. Most simply, each data type being used is stored in a field with a descriptive name (e.g., channel1). While this is primarily intended to store raw single-molecule data, it could equally well be used to store window-averaged data, thresholded data, fits of the data or an arbitrary number of other series data.</li>
+<li>  <strong>attr</strong>. This attributes field has much the same role as the top-level attributes field, but is specific to this particular trace. Within this data field a user can store any additional information they are interested in storing. This could be anything from a kinetic or thermodynamic parameter algorithmically determined for a particular trace to an observation of that particular trace that an experimentalist wants to note for future reference.</li>
 </ul>
 </li>
-</ul><h2>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+</ul>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
 <ol>
-<li><p>Download this repository from<br><a href="https://github.com/smdata/smd-matlab/archive/master.zip">https://github.com/smdata/smd-matlab/archive/master.zip</a>  </p></li>
+<li><p>Download this repository from<br>
+<a href="https://github.com/smdata/smd-matlab/archive/master.zip">https://github.com/smdata/smd-matlab/archive/master.zip</a>  </p></li>
 <li><p>Unzip <code>master.zip</code> to some location (e.g. <code>c:\path\</code>)</p></li>
 <li>
 <p>Add the <code>smdata</code> directory to the Matlab path by typing</p>
@@ -99,10 +108,12 @@ trace <code>n</code>, column <code>d</code>, at index <code>t</code>.<br>
 
 <p>where <code>c:\path\</code> is the directory where <code>master.zip</code> was unpacked.</p>
 </li>
-</ol><h2>
-<a name="functions" class="anchor" href="#functions"><span class="octicon octicon-link"></span></a>Functions</h2>
+</ol>
 
-<p><strong>smd.create(data, column_labels, varargin)</strong>: Creates a SMD structure from supplied data.</p>
+<h2>
+<a id="functions" class="anchor" href="#functions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Functions</h2>
+
+<p><strong>smd.create(data, types, varargin)</strong>: Creates a SMD structure from supplied data.</p>
 
 <p><strong>smd.write_json(filename, dataset)</strong>: Saves a SMD structure as JSON (<code>.json</code>)or compressed JSON (<code>.json.gz</code>).</p>
 
@@ -115,58 +126,53 @@ trace <code>n</code>, column <code>d</code>, at index <code>t</code>.<br>
 <p><strong>smd.merge(data1, data2, ...)</strong>: Returns a merged dataset containing all traces in multiple datasets.</p>
 
 <h2>
-<a name="example-usage" class="anchor" href="#example-usage"><span class="octicon octicon-link"></span></a>Example Usage</h2>
+<a id="example-usage" class="anchor" href="#example-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example Usage</h2>
 
-<p>Generate some fake data: Mixture of 3 gaussian distributions</p>
+<p>Generate some fake data: Mixture of 3 Gaussian distributions</p>
 
-<div class="highlight highlight-matlab"><pre><span class="n">state_mean</span> <span class="p">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">];</span>
-<span class="n">state_noise</span> <span class="p">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">];</span>
-<span class="n">num_traces</span> <span class="p">=</span> <span class="mi">10</span><span class="p">;</span>
-<span class="n">max_length</span> <span class="p">=</span> <span class="mi">100</span><span class="p">;</span>
-<span class="k">for</span> <span class="n">n</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="n">num_traces</span>
-    <span class="n">T</span> <span class="p">=</span> <span class="nb">ceil</span><span class="p">(</span><span class="n">max_length</span> <span class="o">*</span> <span class="nb">rand</span><span class="p">());</span>
-    <span class="n">states</span> <span class="p">=</span> <span class="nb">ceil</span><span class="p">(</span><span class="nb">length</span><span class="p">(</span><span class="n">state_mean</span><span class="p">)</span> <span class="o">*</span> <span class="nb">rand</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="mi">1</span><span class="p">));</span>
-    <span class="n">observations</span> <span class="p">=</span> <span class="n">state_mean</span><span class="p">(</span><span class="n">states</span><span class="p">)</span><span class="o">'</span> <span class="o">+</span> <span class="n">state_noise</span><span class="p">(</span><span class="n">states</span><span class="p">)</span><span class="o">'</span> <span class="o">.*</span> <span class="nb">randn</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
-    <span class="n">data</span><span class="p">{</span><span class="n">n</span><span class="p">}</span> <span class="p">=</span> <span class="p">[</span><span class="n">states</span><span class="p">,</span> <span class="n">observations</span><span class="p">];</span>
-<span class="k">end</span>
-</pre></div>
+<div class="highlight highlight-matlab"><pre>state_mean = [<span class="m">0.1</span>, <span class="m">0.5</span>, <span class="m">0.7</span>];
+state_noise = [<span class="m">0.05</span>, <span class="m">0.10</span>, <span class="m">0.05</span>];
+num_traces = <span class="m">10</span>;
+max_length = <span class="m">100</span>;
+<span class="k">for</span> n = <span class="m">1</span><span class="o">:</span>num_traces
+    T = <span class="k">ceil</span>(max_length<span class="o"> * </span><span class="k">rand</span>());
+    states = <span class="k">ceil</span>(<span class="k">length</span>(state_mean)<span class="o"> * </span><span class="k">rand</span>(T,<span class="m">1</span>));
+    observations = state_mean(states)<span class="o">'</span><span class="o"> + </span>state_noise(states)<span class="o">'</span><span class="o"> .* </span><span class="k">randn</span>(T,<span class="m">1</span>);
+    data{n} = [states, observations];
+<span class="k">end</span></pre></div>
 
 <p>Create a SMD structure</p>
 
-<div class="highlight highlight-matlab"><pre><span class="c">% initialize smd structure</span>
-<span class="n">dataset</span> <span class="p">=</span> <span class="n">smd</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s">'state'</span><span class="p">,</span> <span class="s">'observation'</span><span class="p">})</span>
-<span class="c">% add global attributes </span>
-<span class="n">dataset</span><span class="p">.</span><span class="n">attr</span><span class="p">.</span><span class="n">description</span> <span class="p">=</span> <span class="s">'example data: mixture of 3 gaussians with equal occupancy'</span><span class="p">;</span>
-<span class="n">dataset</span><span class="p">.</span><span class="n">attr</span><span class="p">.</span><span class="n">state_mean</span> <span class="p">=</span> <span class="n">state_mean</span><span class="p">;</span>
-<span class="n">dataset</span><span class="p">.</span><span class="n">attr</span><span class="p">.</span><span class="n">state_noise</span> <span class="p">=</span> <span class="n">state_noise</span><span class="p">;</span>
-<span class="n">dataset</span><span class="p">.</span><span class="n">attr</span><span class="p">.</span><span class="n">max_length</span> <span class="p">=</span> <span class="n">max_length</span><span class="p">;</span>
-</pre></div>
+<div class="highlight highlight-matlab"><pre><span class="c1">% initialize smd structure</span>
+dataset = smd.create(data, {<span class="s1">'state'</span>, <span class="s1">'int'</span>, <span class="s1">'observation'</span>, <span class="s1">'float'</span>})
+<span class="c1">% add global attributes </span>
+dataset.attr.description = <span class="s1">'example data: mixture of 3 gaussians with equal occupancy'</span>;
+dataset.attr.state_mean = state_mean;
+dataset.attr.state_noise = state_noise;
+dataset.attr.max_length = max_length;</pre></div>
 
 <p>Save data to disk</p>
 
-<div class="highlight highlight-matlab"><pre><span class="c">% save as Matlab data</span>
-<span class="n">save</span><span class="p">(</span><span class="s">'example.mat'</span><span class="p">,</span> <span class="s">'-struct'</span><span class="p">,</span> <span class="s">'dataset'</span><span class="p">);</span>
-<span class="c">% save as plain text JSON (uncompressed)</span>
-<span class="n">smd</span><span class="p">.</span><span class="n">write_json</span><span class="p">(</span><span class="s">'example.json'</span><span class="p">,</span> <span class="n">dataset</span><span class="p">);</span>
-<span class="c">% save as plain text JSON (with gzip compression)</span>
-<span class="n">smd</span><span class="p">.</span><span class="n">write_json</span><span class="p">(</span><span class="s">'example.json.gz'</span><span class="p">,</span> <span class="n">dataset</span><span class="p">);</span>
-</pre></div>
+<div class="highlight highlight-matlab"><pre><span class="c1">% save as Matlab data</span>
+save(<span class="s1">'example.mat'</span>, <span class="s1">'-struct'</span>, <span class="s1">'dataset'</span>);
+<span class="c1">% save as plain text JSON (uncompressed)</span>
+smd.write_json(<span class="s1">'example.json'</span>, dataset);
+<span class="c1">% save as plain text JSON (with gzip compression)</span>
+smd.write_json(<span class="s1">'example.json.gz'</span>, dataset);</pre></div>
 
 <p>Load data from disk</p>
 
-<div class="highlight highlight-matlab"><pre><span class="c">% read matlab data</span>
-<span class="n">example</span> <span class="p">=</span> <span class="n">load</span><span class="p">(</span><span class="s">'example.mat'</span><span class="p">);</span>
-<span class="c">% read plain text json (uncompressed)</span>
-<span class="n">example</span> <span class="p">=</span> <span class="n">smd</span><span class="p">.</span><span class="n">read_json</span><span class="p">(</span><span class="s">'example.json'</span><span class="p">,</span> <span class="n">dataset</span><span class="p">);</span>
-<span class="c">% read plain text json (with gzip compression)</span>
-<span class="n">example</span> <span class="p">=</span> <span class="n">smd</span><span class="p">.</span><span class="n">read_json</span><span class="p">(</span><span class="s">'example.json.gz'</span><span class="p">,</span> <span class="n">dataset</span><span class="p">);</span>
-</pre></div>
+<div class="highlight highlight-matlab"><pre><span class="c1">% read matlab data</span>
+example = load(<span class="s1">'example.mat'</span>);
+<span class="c1">% read plain text json (uncompressed)</span>
+example = smd.read_json(<span class="s1">'example.json'</span>, dataset);
+<span class="c1">% read plain text json (with gzip compression)</span>
+example = smd.read_json(<span class="s1">'example.json.gz'</span>, dataset);</pre></div>
 
 <p>Filter data</p>
 
-<div class="highlight highlight-matlab"><pre><span class="c">% filter out traces with &lt;= 50 data points</span>
-<span class="n">filtered</span> <span class="p">=</span> <span class="n">smd</span><span class="p">.</span><span class="n">filter</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="s">'func'</span><span class="p">,</span> <span class="p">@(</span><span class="n">d</span><span class="p">)</span> <span class="nb">size</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">values</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">);</span>
-</pre></div>
+<div class="highlight highlight-matlab"><pre><span class="c1">% filter out traces with &lt;= 50 data points</span>
+filtered = smd.filter(example, <span class="s1">'func'</span>, @(d) <span class="k">size</span>(d.values,<span class="m">1</span>)<span class="o"> &gt; </span><span class="m">50</span>);</pre></div>
       </section>
       <footer>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
